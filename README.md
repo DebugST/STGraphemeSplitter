@@ -126,7 +126,7 @@ CR, LF, Control, L, V, LV, LVT, T, Extend, ZWJ, SpacingMark, Prepend, Extended_P
 public static string CreateBreakPropertyCodeFromText(string strText);
 ```
 
-如何使用代码
+# Demo
 
 ```CS
 string strText = "👩‍🦰👩‍👩‍👦‍👦🏳️‍🌈Abc";
@@ -148,3 +148,9 @@ STGraphemeSplitter.CreateArrayCache();          //创建缓存到数组，速度
 STGraphemeSplitter.CreateDictionaryCache();     //创建缓存到字典，速度相对慢，暂用空间少
 STGraphemeSplitter.ClearCache();                //清除所有缓存
 ```
+
+
+# 关于作者
+* Github: [DebugST](https://github.com/DebugST/)
+* Blog: [Crystal_lz](http://st233.com)
+* Mail: (2212233137@qq.com)

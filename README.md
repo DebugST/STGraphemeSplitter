@@ -132,13 +132,17 @@ public static string CreateBreakPropertyCodeFromText(string strText);
 string strText = "👩‍🦰👩‍👩‍👦‍👦🏳️‍🌈Abc";
 List<string> lst = STGraphemeSplitter.Split(strText);
 Console.WriteLine(string.Join(",", lst.ToArray())); //Output: 汉,字,👩‍🦰,👩‍👩‍👦‍👦,🏳️‍🌈,A,b,c
+
 int nLen = STGraphemeSplitter.GetLength(strText);   //仅仅获取长度.
+
 foreach (var v in STGraphemeSplitter.GetEnumerator(strText)) {
     Console.WriteLine(v);
 }
+
 STGraphemeSplitter.Each(strText, (str, nStart, nLen) => { //速度最快
     Console.WriteLine(str.Substring(nStart, nLen));
 });
+
 //如果上面的速度还不够快？那就在使用之前创建缓存
 STGraphemeSplitter.CreateArrayCache();          //创建缓存到数组，速度相对快，占用空间高
 STGraphemeSplitter.CreateDictionaryCache();     //创建缓存到字典，速度相对慢，暂用空间少

@@ -58,7 +58,7 @@ private static int GetCodePoint(string strText, int nIndex) {
 
 但是对于人类感官来说无论是【\r\n】或者【\n】他都是一个字符，那就是【换行】
 
-所以[\r\n]在人类的意识中是一个字符，而不是两个。
+所以【\r\n】在人类的意识中是一个字符，而不是两个。
 
 如果不这么做那么就会出现这样的情况
 
@@ -68,7 +68,9 @@ var strB =  strA.Reverse(); // "B\n\rA";
 ```
 
 这显然是我们不希望的结果。我们希望的结果是"B\r\nA"
-而这也是Unicode定义的[GB3]: [https://www.unicode.org/reports/tr29/#GB3](https://www.unicode.org/reports/tr29/#GB3)
+而这也是Unicode定义的[GB3]:
+
+[https://www.unicode.org/reports/tr29/#GB3](https://www.unicode.org/reports/tr29/#GB3)
 
 ```
 Do not break between a CR and LF. Otherwise, break before and after controls.
@@ -100,9 +102,13 @@ Unicode定义了很多特性，而用来确定分割的特性有：
 CR, LF, Control, L, V, LV, LVT, T, Extend, ZWJ, SpacingMark, Prepend, Extended_Pictographic, RI
 ```
 
-这些特性分布区间也是Unicode定义的：[https://www.unicode.org/Public/14.0.0/ucd/auxiliary/GraphemeBreakProperty.txt](https://www.unicode.org/Public/14.0.0/ucd/auxiliary/GraphemeBreakProperty.txt)
+这些特性分布区间也是Unicode定义的：
 
-而决定这些字符是否应当组合在一起的标准在这里:[https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules](https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules)
+[https://www.unicode.org/Public/14.0.0/ucd/auxiliary/GraphemeBreakProperty.txt](https://www.unicode.org/Public/14.0.0/ucd/auxiliary/GraphemeBreakProperty.txt)
+
+而决定这些字符是否应当组合在一起的标准在这里:
+
+[https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules](https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules)
 
 而此代码全部按照Unicode最新标准编写，就算以后Unicode更新，代码中也提供了代码生成函数，可以根据Unicode最新标准生成最新的代码 比如：
 

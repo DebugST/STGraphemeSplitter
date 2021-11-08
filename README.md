@@ -68,7 +68,7 @@ var strB =  strA.Reverse(); // "B\n\rA";
 ```
 
 这显然是我们不希望的结果。我们希望的结果是"B\r\nA"
-而这也是Unicode定义的[GB3]:
+而Unicode也确实是这样定义的[GB3]:
 
 [https://www.unicode.org/reports/tr29/#GB3](https://www.unicode.org/reports/tr29/#GB3)
 
@@ -142,5 +142,5 @@ STGraphemeSplitter.Each(strText, (str, nStart, nLen) => { //速度最快
 //如果上面的速度还不够快？那就在使用之前创建缓存
 STGraphemeSplitter.CreateArrayCache();          //创建缓存到数组，速度相对快，占用空间高
 STGraphemeSplitter.CreateDictionaryCache();     //创建缓存到字典，速度相对慢，暂用空间少
-STGraphemeSplitter.ClearCache();                //清楚所有缓存
+STGraphemeSplitter.ClearCache();                //清除所有缓存
 ```

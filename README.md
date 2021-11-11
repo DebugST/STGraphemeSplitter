@@ -129,7 +129,7 @@ public static string CreateBreakPropertyCodeFromText(string strText);
 # Demo
 
 ```CS
-string strText = "👩‍🦰👩‍👩‍👦‍👦🏳️‍🌈Abc";
+string strText = "汉字👩‍🦰👩‍👩‍👦‍👦🏳️‍🌈Abc";
 List<string> lst = STGraphemeSplitter.Split(strText);
 Console.WriteLine(string.Join(",", lst.ToArray())); //Output: 汉,字,👩‍🦰,👩‍👩‍👦‍👦,🏳️‍🌈,A,b,c
 

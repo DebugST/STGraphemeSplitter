@@ -13,7 +13,7 @@ string strText = "👩‍🦰👩‍👩‍👦‍👦🏳️‍🌈";
 Console.WriteLine(strText.Length) // output is: 22
 ```
 
-可视我们希望的结果是3，但是结果却输出了22。。这是为什么？
+可是我们希望的结果是3，但是结果却输出了22。。这是为什么？
 
 # 字素簇
 

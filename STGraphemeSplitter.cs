@@ -30,12 +30,14 @@ using System.Collections;
     Author: DebugST
     GitHub: https://github.com/DebugST/
     Thanks: [netero](https://github.com/0x54164)
+    Date: 2021-11-21
  */
 namespace ST.Library.Text
 {
     class STGraphemeSplitter
     {
-        public delegate void EachCallBack(string strText, int nIndex, int nLen);
+        public delegate void EachVoidCallBack(string strText, int nIndex, int nLen);
+        public delegate bool EachBoolCallBack(string strText, int nIndex, int nLen);
 
         private struct RangeInfo
         {
@@ -65,7 +67,7 @@ namespace ST.Library.Text
         private const int Extended_Pictographic = 18;
 
         private static int[] m_arr_cache_break_type;
-        private static Dictionary<int,int> m_dic_cache_break_type;
+        private static Dictionary<int, int> m_dic_cache_break_type;
         private static List<RangeInfo> m_lst_code_range = new List<RangeInfo>();
 
         static STGraphemeSplitter() {
@@ -2137,6 +2139,9 @@ namespace ST.Library.Text
         /// </summary>
         /// <returns>The array length</returns>
         public static int CreateArrayCache() {
+            if (m_arr_cache_break_type != null) {
+                return m_arr_cache_break_type.Length;
+            }
             int[] arr = new int[m_lst_code_range[m_lst_code_range.Count - 1].End + 1];
             foreach (var v in m_lst_code_range) {
                 for (int i = v.Start; i <= v.End; i++)
@@ -2150,6 +2155,9 @@ namespace ST.Library.Text
         /// </summary>
         /// <returns>Dictionary.Count</returns>
         public static int CreateDictionaryCache() {
+            if (m_dic_cache_break_type != null) {
+                return m_dic_cache_break_type.Count;
+            }
             Dictionary<int, int> dic = new Dictionary<int, int>();
             foreach (var v in m_lst_code_range) {
                 for (int i = v.Start; i <= v.End; i++)
@@ -2171,35 +2179,46 @@ namespace ST.Library.Text
 
         public static List<string> Split(string strText) {
             List<string> lst_result = new List<string>(strText.Length);
-            STGraphemeSplitter.SplitPrivate(strText, lst_result, null);
+            STGraphemeSplitter.SplitPrivate(strText, lst_result, 0, null, null);
             return lst_result;
         }
 
         public static int GetLength(string strText) {
-            int nLen = STGraphemeSplitter.SplitPrivate(strText, null, null);
+            int nLen = STGraphemeSplitter.SplitPrivate(strText, null, 0, null, null);
             return nLen;
         }
 
-        public static void Each(string strText,EachCallBack cb) {
-            STGraphemeSplitter.SplitPrivate(strText, null, cb);
+        public static void Each(string strText, EachVoidCallBack cb) {
+            STGraphemeSplitter.SplitPrivate(strText, null, 0, cb, null);
         }
 
-        private static int SplitPrivate(string strText, List<string> lst_result, EachCallBack cb) {
+        public static void Each(string strText, int nIndex, EachVoidCallBack cb) {
+            STGraphemeSplitter.SplitPrivate(strText, null, nIndex, cb, null);
+        }
+
+        public static void Each(string strText, EachBoolCallBack cb) {
+            STGraphemeSplitter.SplitPrivate(strText, null, 0, null, cb);
+        }
+
+        public static void Each(string strText, int nIndex, EachBoolCallBack cb) {
+            STGraphemeSplitter.SplitPrivate(strText, null, nIndex, null, cb);
+        }
+
+        private static int SplitPrivate(string strText, List<string> lst_result, int nIndexCurrent, EachVoidCallBack cb_void, EachBoolCallBack cb_bool) {
             int nCounter = 0;
             int nRICounter = 0; // Will be used by [GB12] [GB13]
             // This list will be used by [GB11] \p{Extended_Pictographic} Extend* ZWJ × \p{Extended_Pictographic}
             List<int> lst_history_break_type = new List<int>();
-            //List<string> lst_result = new List<string>(strText.Length);
             if (string.IsNullOrEmpty(strText)) {
                 return 0;
             }
-            int nIndexCurrent = 0, nIndexCharStart = 0, nCharLen = 1, nLastCharLen = 0;
+            int nIndexCharStart = 0, nCharLen = 1, nLastCharLen = 0;
             int nCodePoint = 0;
             int nBreakTypeLeft = 0, nBreakTypeRight = 0;
             nCodePoint = STGraphemeSplitter.GetCodePoint(strText, nIndexCurrent);
             nLastCharLen = nCodePoint >= 0x10000 ? 2 : 1;       // >= 0x10000 is HighSurrogate
             nBreakTypeLeft = STGraphemeSplitter.GetGraphemeBreakProperty(nCodePoint);
-            nIndexCurrent = nLastCharLen;
+            nIndexCurrent += nLastCharLen;
             nCharLen = nLastCharLen;
             lst_history_break_type.Add(nBreakTypeLeft);
             while (nIndexCurrent < strText.Length) {
@@ -2215,8 +2234,10 @@ namespace ST.Library.Text
                     if (lst_result != null) {
                         lst_result.Add(strText.Substring(nIndexCharStart, nCharLen));
                     }
-                    if (cb != null) {
-                        cb(strText, nIndexCharStart, nCharLen);
+                    if (cb_void != null) {
+                        cb_void(strText, nIndexCharStart, nCharLen);
+                    } else if (cb_bool != null && !cb_bool(strText, nIndexCharStart, nCharLen)) {
+                        return nCounter + 1;
                     }
                     nCounter++;
                     nIndexCharStart = nIndexCurrent;
@@ -2232,8 +2253,10 @@ namespace ST.Library.Text
             if (lst_result != null) {
                 lst_result.Add(strText.Substring(nIndexCharStart, nCharLen));
             }
-            if (cb != null) {
-                cb(strText, nIndexCharStart, nCharLen);
+            if (cb_void != null) {
+                cb_void(strText, nIndexCharStart, nCharLen);
+            } else if (cb_bool != null) {
+                cb_bool(strText, nIndexCharStart, nCharLen);
             }
             return nCounter + 1;
         }
@@ -2243,6 +2266,11 @@ namespace ST.Library.Text
         }
 
         private static int GetCodePoint(string strText, int nIndex) {
+            if (char.IsLowSurrogate(strText, nIndex)) {
+                if (--nIndex < 0) {
+                    return 0;
+                }
+            }
             if (!char.IsHighSurrogate(strText, nIndex)) {
                 return strText[nIndex];
             }
@@ -2251,6 +2279,21 @@ namespace ST.Library.Text
             }
             return ((strText[nIndex] & 0x03FF) << 10) + (strText[nIndex + 1] & 0x03FF) + 0x10000;
         }
+
+        //private static int GetCodePointA(string strText, int nIndex) {
+        //    if (char.IsLowSurrogate(strText, nIndex)) {
+        //        if (--nIndex < 0) {
+        //            return 0;
+        //        }
+        //    }
+        //    if (!char.IsHighSurrogate(strText, nIndex)) {
+        //        return strText[nIndex];
+        //    }
+        //    if (nIndex + 1 >= strText.Length) {
+        //        return 0;
+        //    }
+        //    return ((strText[nIndex] & 0x03FF) << 10) + (strText[nIndex + 1] & 0x03FF) + 0x10000;
+        //}
 
         private static bool ShouldBreak(int nLeftType, int nRightType, List<int> lst_history, int nLeftRICount) {
             // The urles from: https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundary_Rules
@@ -3157,7 +3200,7 @@ namespace ST.Library.Text
                 case 0x1F9CC: return Extended_Pictographic; // E14.0  [1] (🧌)       troll
                 case 0x1FA74: return Extended_Pictographic; // E13.0  [1] (🩴)       thong sandal
             }
-            if (m_dic_cache_break_type != null){
+            if (m_dic_cache_break_type != null) {
                 if (m_dic_cache_break_type.ContainsKey(nCodePoint)) {
                     return m_dic_cache_break_type[nCodePoint];
                 } else {
@@ -3187,7 +3230,7 @@ namespace ST.Library.Text
                 return lst[nMid].Type;
             }
         }
-        
+
         /// <summary>
         /// Build the [GetGraphemeBreakProperty] function and [m_lst_code_range]
         /// Current [GetGraphemeBreakProperty] and [m_lst_code_range] create by:

@@ -143,6 +143,18 @@ STGraphemeSplitter.Each(strText, (str, nStart, nLen) => { //速度最快
     Console.WriteLine(str.Substring(nStart, nLen));
 });
 
+STGraphemeSplitter.Each(strText, (str, nStart, nLen) => {
+    Console.WriteLine(str.Substring(nStart, nLen));
+    if (nStart > 1) {
+        return false;                               //Break Each
+    }
+    return true;                                    //Continue Each
+});
+int nIndexStart = 10;
+STGraphemeSplitter.Each(strText, nIndexStart, (str, nStart, nLen) => {
+    Console.WriteLine(str.Substring(nStart, nLen));//Each all
+});
+
 //如果上面的速度还不够快？那就在使用之前创建缓存
 STGraphemeSplitter.CreateArrayCache();          //创建缓存到数组，速度相对快，占用空间高
 STGraphemeSplitter.CreateDictionaryCache();     //创建缓存到字典，速度相对慢，暂用空间少

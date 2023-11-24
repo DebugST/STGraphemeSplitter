@@ -29,7 +29,7 @@ using System.Collections;
     
     Author: DebugST
     GitHub: https://github.com/DebugST/
-    Thanks: [netero](https://github.com/0x54164)
+    Thanks: [tpbeldie](https://github.com/tpbeldie)
     Date: 2021-11-21
  */
 namespace ST.Library.Text
